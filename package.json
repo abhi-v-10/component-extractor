@@ -1,0 +1,27 @@
+{
+  "name": "component-render-extension",
+  "version": "1.1.0",
+  "description": "Multiplayer cursor swarm engine & component renderer extension for Chrome and Firefox",
+  "private": true,
+  "scripts": {
+    "start": "node scripts/dev-server.js",
+    "dev": "node scripts/dev-server.js",
+    "build": "node scripts/build.js",
+    "build:extractor": "node scripts/build.js extractor",
+    "build:chrome": "node scripts/build.js chrome",
+    "build:firefox": "node scripts/build.js firefox",
+    "bundle": "node scripts/build-extractor.js",
+    "check": "node scripts/check.js",
+    "test": "node tests/run-tests.js"
+  },
+  "keywords": [
+    "chrome-extension",
+    "firefox-extension",
+    "cursor-swarm",
+    "component-render",
+    "web-animation",
+    "manifest-v3"
+  ],
+  "author": "",
+  "license": "ISC"
+}

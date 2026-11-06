@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Component Render Studio — Interactive Swarm Playground</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-glow: rgba(88, 166, 255, 0.15);
+      --success: #238636;
+      --purple: #a371f7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 80px;
+    }
+
+    /* Top Navigation */
+    header.top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(22, 27, 34, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-badge {
+      background: linear-gradient(135deg, #f24e1e, #a259ff, #0acf83);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+    .top-nav h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+    .btn-primary {
+      background: #238636;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #2ea043; }
+    .btn-secondary {
+      background: #21262d;
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-secondary:hover { background: #30363d; }
+    .btn-accent {
+      background: #1f6feb;
+      color: #fff;
+    }
+    .btn-accent:hover { background: #388bfd; }
+
+    /* Hero Banner */
+    .hero-banner {
+      max-width: 1100px;
+      margin: 40px auto 20px;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .hero-banner h2 {
+      font-size: 38px;
+      font-weight: 800;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #fff 40%, #8b949e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-banner p {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 24px;
+    }
+    .shortcut-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: #21262d;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    kbd {
+      background: #161b22;
+      border: 1px solid #484f58;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: monospace;
+      color: #58a6ff;
+    }
+
+    /* Studio Layout */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: grid;
+      gap: 40px;
+    }
+
+    /* Component Sandbox Box */
+    .sandbox-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .sandbox-header {
+      padding: 14px 20px;
+      background: #1c2128;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .component-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .type-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      font-weight: 700;
+      background: rgba(163, 113, 247, 0.15);
+      color: var(--purple);
+      border: 1px solid rgba(163, 113, 247, 0.3);
+    }
+    .sandbox-body {
+      padding: 32px;
+      background: #0f141c;
+    }
+
+    /* Showcase 1: Metrics Dashboard */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .metric-card .label { font-size: 13px; color: var(--text-muted); }
+    .metric-card .val { font-size: 32px; font-weight: 700; color: #fff; }
+    .metric-card .sub { font-size: 12px; color: #3fb950; display: flex; align-items: center; gap: 4px; }
+    .progress-bar {
+      height: 6px;
+      background: #21262d;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #238636, #2ea043);
+      border-radius: 999px;
+    }
+
+    /* Showcase 2: Feature Pricing Card */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .pricing-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      position: relative;
+    }
+    .pricing-card.featured {
+      border-color: #58a6ff;
+      box-shadow: 0 0 20px rgba(88, 166, 255, 0.15);
+    }
+    .pricing-card .badge {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: #1f6feb;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+    .pricing-card h3 { font-size: 20px; margin-bottom: 6px; }
+    .pricing-card .price { font-size: 36px; font-weight: 800; margin: 12px 0 16px; }
+    .pricing-card .price span { font-size: 14px; font-weight: 400; color: var(--text-muted); }
+    .pricing-features { list-style: none; display: grid; gap: 10px; margin-bottom: 24px; font-size: 14px; }
+    .pricing-features li::before { content: "✓ "; color: #3fb950; font-weight: bold; }
+
+    /* Showcase 3: Form Card */
+    .form-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .form-panel h3 { margin-bottom: 16px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: #fff;
+      font: inherit;
+    }
+
+    /* Floating Quick Bar */
+    .quick-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(22, 27, 34, 0.95);
+      border: 1px solid #484f58;
+      border-radius: 999px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="top-nav">
+    <div class="logo-group">
+      <span class="logo-badge">SWARM</span>
+      <h1>Component Render Studio</h1>
+    </div>
+    <div class="nav-actions">
+      <a href="index.html" class="btn btn-secondary">Classic Acme Demo</a>
+      <button id="triggerExtractorBtn" class="btn btn-accent">
+        🔍 Extract Component (Alt+Shift+X)
+      </button>
+      <button id="triggerSwarmGlobal" class="btn btn-primary">
+        ⚡ Rebuild Full Page (Alt+Shift+S)
+      </button>
+    </div>
+  </header>
+
+
+  <div class="hero-banner">
+    <h2>Multiplayer Cursor Component Rebuilder</h2>
+    <p>Watch a simulated swarm of cursors type text, drag shapes, snap ruler guides, and rebuild modern web components right in front of your eyes.</p>
+    <div class="shortcut-pill">
+      Tip: Press <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> to launch the swarm, or use the toolbar button.
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Component 1: Metrics Dashboard -->
+    <div class="sandbox-panel" id="component-metrics">
+      <div class="sandbox-header">
+        <div class="component-title">
+          <span class="type-tag">Widget</span>
+          <span>Analytics & Performance Metrics</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="triggerSwarmDirect()">Rebuild With Swarm</button>
+      </div>
+      <div class="sandbox-body">
+        <div class="metric-grid">
+          <div class="metric-card">
+            <span class="label">Total Page Views</span>
+            <span class="val">1,284,912</span>
+            <span class="sub">↑ 14.8% vs last week</span>
+            <div class="progress-bar"><div class="progress-fill" style="width: 78%"></div></div>
+          </div>
+          <div class="metric-card">
+            <span class="label">Active Cursor Workers</span>
+            <span class="val">36 Agents</span>
+            <span class="sub">↑ 100% capacity</span>
+            <div class="progress-bar"><div class="progress-fill" style="width: 92%; background: #a371f7;"></div></div>
+          </div>
+          <div class="metric-card">
+            <span class="label">Render Latency</span>
+            <span class="val">18.4 ms</span>
+            <span class="sub">✓ 60 FPS Locked</span>
+            <div class="progress-bar"><div class="progress-fill" style="width: 96%; background: #58a6ff;"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Component 2: Pricing Matrix -->
+    <div class="sandbox-panel" id="component-pricing">
+      <div class="sandbox-header">
+        <div class="component-title">
+          <span class="type-tag">Card Group</span>
+          <span>Feature & Pricing Comparison</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="triggerSwarmDirect()">Rebuild With Swarm</button>
+      </div>
+      <div class="sandbox-body">
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <h3>Standard Rebuilder</h3>
+            <p style="color: var(--text-muted); font-size: 14px;">Great for individual pages and rapid prototyping.</p>
+            <div class="price">$0 <span>/ forever</span></div>
+            <ul class="pricing-features">
+              <li>DOM Blueprint snapshotting</li>
+              <li>Mechanical keyboard audio synthesis</li>
+              <li>Full WebGL & Video cropping</li>
+            </ul>
+            <button class="btn btn-secondary" style="width: 100%;">Current Plan</button>
+          </div>
+          <div class="pricing-card featured">
+            <span class="badge">POPULAR</span>
+            <h3>Swarm Pro Studio</h3>
+            <p style="color: var(--text-muted); font-size: 14px;">Component-level rendering & custom team cursors.</p>
+            <div class="price">$29 <span>/ month</span></div>
+            <ul class="pricing-features">
+              <li>Component isolation & inspector mode</li>
+              <li>Multiplayer flocking physics tuning</li>
+              <li>High-res video export recording</li>
+              <li>Custom SVG cursor design sets</li>
+            </ul>
+            <button class="btn btn-accent" style="width: 100%;">Upgrade to Pro</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Component 3: Configuration Form -->
+    <div class="sandbox-panel" id="component-form">
+      <div class="sandbox-header">
+        <div class="component-title">
+          <span class="type-tag">Form</span>
+          <span>Extension Settings & Preferences</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="triggerSwarmDirect()">Rebuild With Swarm</button>
+      </div>
+      <div class="sandbox-body">
+        <div class="form-panel">
+          <h3>Swarm Configuration</h3>
+          <div class="form-group">
+            <label>Agent Density</label>
+            <select>
+              <option>Dynamic (18-48 agents)</option>
+              <option>Lightweight (8-16 agents)</option>
+              <option>Maximum Swarm (64 agents)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Audio Synthesizer</label>
+            <select>
+              <option>Mechanical Click & Glass Pentatonic Piano (Default)</option>
+              <option>Muted / Silent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Build Pace</label>
+            <select>
+              <option>1x Normal Realtime</option>
+              <option>2x Fast Forward</option>
+              <option>3x Hyper Speed</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width: 100%;">Save Preferences</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="quick-bar">
+    <span style="font-size: 13px; color: var(--text-muted)">Extension Testbed</span>
+    <button class="btn btn-accent" id="quickExtractBtn">🔍 Extract UI Component</button>
+    <button class="btn btn-primary" onclick="triggerSwarmDirect()">⚡ Run Swarm</button>
+  </div>
+
+  <!-- Swarm Script for Direct Web Testing -->
+  <script src="swarm.js"></script>
+  <script>
+    function triggerSwarmDirect() {
+      if (window.__swarmRebuild) {
+        window.__swarmRebuild.toggle();
+      } else {
+        alert("Swarm engine script not detected. Load the extension unpacked or verify swarm.js is served!");
+      }
+    }
+    document.getElementById("triggerSwarmGlobal").addEventListener("click", triggerSwarmDirect);
+
+    function triggerExtractor() {
+      if (window.__componentExtractor) {
+        window.__componentExtractor.toggle();
+      } else {
+        const script = document.createElement("script");
+        script.src = "extractor.js";
+        document.body.appendChild(script);
+      }
+    }
+    document.getElementById("triggerExtractorBtn").addEventListener("click", triggerExtractor);
+    document.getElementById("quickExtractBtn").addEventListener("click", triggerExtractor);
+  </script>
+</body>
+</html>
+
